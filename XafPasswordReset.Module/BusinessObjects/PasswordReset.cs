@@ -102,6 +102,9 @@ public class PasswordReset : BaseObject {
                 if (((Statuscode)newValue) == Statuscode.Verified) {
                     ConfirmationDate = DateTime.Now;
                 }
+                if (((Statuscode)newValue) == Statuscode.Unverified) {
+                    ConfirmationDate = DateTime.MinValue;
+                }
                 break;
             }
         }
