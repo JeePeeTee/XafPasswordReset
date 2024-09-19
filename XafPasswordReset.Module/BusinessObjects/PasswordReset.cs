@@ -30,6 +30,7 @@
 
 using System.ComponentModel;
 using DevExpress.Data.Filtering;
+using DevExpress.Data.ODataLinq.Helpers;
 using DevExpress.ExpressApp.Model;
 using DevExpress.ExpressApp.Xpo;
 using DevExpress.Persistent.Base;
@@ -106,12 +107,22 @@ public class PasswordReset : BaseObject {
         }
     }
 
+    protected override void OnSaving() {
+        base.OnSaving();
+        // Invalidate all other PasswordReset objects for this user
+        //if (Session.IsNewObject(this)) {
+            Session.Query<PasswordReset>().Where(w => 
+                w.User == this.User &&
+                w.Status == Statuscode.Unverified &&
+                w.Oid != this.Oid).ToList().ForEach(w=>w.Status = Statuscode.Invalid);
+        //}
+    }
+
     public override void AfterConstruction() {
         base.AfterConstruction();
         RequestDate = DateTime.Now;
         Status = Statuscode.Unverified;
     }
-
 }
 
 public enum Statuscode

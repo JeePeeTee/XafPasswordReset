@@ -53,16 +53,17 @@ public class ResetPasswordController : ControllerBase {
     public IActionResult ResetPassword(Guid tenantId, Guid secret) {
         try {
             var application = _applicationProvider.GetApplication();
-
+            
             var configuration = application.ServiceProvider.GetRequiredService<IConfiguration>();
             var connectionString = configuration["ConnectionStrings:ConnectionString"];
             XpoDefault.DataLayer = XpoDefault.GetDataLayer(connectionString, AutoCreateOption.None);
             
             Tenant tenant;
+            
             using (var unitOWork = new UnitOfWork()) {
                 tenant = unitOWork.Query<Tenant>().Where(t => t.Oid == tenantId).First();
             }
-
+            
             XpoDefault.DataLayer = XpoDefault.GetDataLayer(tenant.ConnectionString, AutoCreateOption.None);
 
             PasswordReset check;
@@ -71,18 +72,9 @@ public class ResetPasswordController : ControllerBase {
             }
 
             var actionResult = Validations(check);
-            if(actionResult.GetHashCode()==400){
+            if(((ObjectResult) actionResult).StatusCode==400){
                 return actionResult;
             }
-
-            var userIos = application.CreateObjectSpace(typeof(ApplicationUser));
-            var user = userIos.FindObject(typeof(ApplicationUser), CriteriaOperator.Parse("UserName = ?", check.User.UserName));
-            using var ios = application.CreateObjectSpace(typeof(PasswordReset));
-            var newPasswordReset = ios.CreateObject<PasswordReset>();
-            
-            newPasswordReset.User = ios.GetObjectByKey<ApplicationUser>(user);
-            newPasswordReset.RequestDate = DateTime.Now;
-            newPasswordReset.Status = Statuscode.Unverified;
             
             //2nd Email
             var password = GenerateRandomPassword(check);
@@ -130,7 +122,7 @@ public class ResetPasswordController : ControllerBase {
             return  StatusCode(400, new { message = "Link has been used." });
         }
             
-        if (check.DropDead > DateTime.Now) {
+        if (check.DropDead <= DateTime.Now) {
             return StatusCode(400, new { message = "Link is expired." });
         }
 
