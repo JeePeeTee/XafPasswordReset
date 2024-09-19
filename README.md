@@ -11,7 +11,7 @@ The application is built using the following technologies:
 - [x] Frontend: Blazor Server
 - [x] Backend: ASP.NET Core 8.0
 - [x] Database: SQLite
-- [x] ORM: XPO 
+- [x] ORM: XPO
 
 ## Features ToDo
 
