@@ -16,4 +16,5 @@ The application is built using the following technologies:
 ## Features ToDo
 
 - [ ] Instead of emailing a temp password to the user, email a link to a page where the user can reset their password.
+- [ ] When database is accessed via our endpoint the db-updater kicks in and updates the database schema without a assigned tentantName. This constructs new tenants into the separated tenant databases. See the code on Updater.cs line 36-42. Is there a way to switch tenant in code?  
 - [ ] Add delight to the experience when all tasks are complete :tada:
